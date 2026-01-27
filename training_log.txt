@@ -1,0 +1,20 @@
+
+
+--- PIPELINE RUN: Mon Jan 26 21:25:02 2026 ---
+tfidf_vectorizer.py completed in 8.94s
+Found 80 unique assignees
+Vectorizing text (this may take a moment)...
+Feature Matrix shape: (8741, 30000) (Rows, Features)
+Saving artifacts to disk...
+DONE! All files saved to: C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\data\features
+tune_hyperparameters.py completed in 701.67s
+  Best Params: {'n_estimators': 200, 'max_depth': None}
+Tuning linear_svm...
+  Best Score: 0.4964
+  Best Params: {'C': 1}
+Tuning complete. Results saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\docs\reports\hyperparameter_tuning_results.json
+train_ensemble.py completed in 235.42s
+Training Ensemble Model (Voting Classifier)...
+
+Ensemble Accuracy: 53.55%
+Ensemble model saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\saved_models\ensemble_model.pkl

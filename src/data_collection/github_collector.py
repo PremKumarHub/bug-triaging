@@ -39,7 +39,7 @@ def fetch_repo_issues(owner, repo, remaining_limit):
         response = requests.get(base_url, headers=HEADERS, params=params)
 
         if response.status_code != 200:
-            print(f"❌ API error in {repo}: {response.status_code}")
+            print(f"API error in {repo}: {response.status_code}")
             break
 
         issues = response.json()
@@ -75,7 +75,7 @@ def fetch_repo_issues(owner, repo, remaining_limit):
             if len(collected) >= remaining_limit:
                 break
 
-        print(f"📦 {repo}: collected {len(collected)}")
+        print(f"COLLECTED {repo}: {len(collected)} issues")
         page += 1
 
     return collected
@@ -83,7 +83,7 @@ def fetch_repo_issues(owner, repo, remaining_limit):
 
 if __name__ == "__main__":
     if not GITHUB_TOKEN:
-        raise RuntimeError("❌ GITHUB_PAT not set")
+        raise RuntimeError("GITHUB_PAT not set")
 
     all_issues = []
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         if remaining <= 0:
             break
 
-        print(f"\n⏳ Collecting from {owner}/{repo}")
+        print(f"\nCollecting from {owner}/{repo}")
         repo_issues = fetch_repo_issues(owner, repo, remaining)
         all_issues.extend(repo_issues)
 
@@ -101,4 +101,4 @@ if __name__ == "__main__":
     with open("data/raw/github_issues_raw.json", "w", encoding="utf-8") as f:
         json.dump(all_issues, f, indent=4)
 
-    print(f"\n✅ DONE: Total collected bugs = {len(all_issues)}")
+    print(f"\nDONE: Total collected bugs = {len(all_issues)}")
