@@ -1,0 +1,110 @@
+﻿--- 1. Loading Labels and Class Distribution ---
+
+Total Components/Assignees: 57
+Total Samples: 8741
+
+Top 10 Assignees (Majority Classes):
+    Assignee  Count
+DonJayamanne   1766
+    karrtikr    673
+karthiknadig    628
+eleanorjboyd    617
+     amunger    436
+  roblourens    428
+ anthonykim1    362
+    rebornix    261
+      Tyriar    257
+  connor4312    255
+
+Bottom 10 Assignees (Minority Classes):
+      Assignee  Count
+    samvantran     16
+      alexdima     16
+   mrleemurray     16
+       jruales     15
+IanMatthewHuff     15
+   cwebster-99     14
+       zhichli     13
+      kycutler     12
+      kieferrm     12
+   dileepyavan     10
+
+Imbalance Ratio (Max/Min): 176.60
+
+--- 2. Evaluating Models for Imbalance Impact ---
+
+Checking Model: logistic_regression_best.pkl
+Test Accuracy: 88.39%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+weighted avg   0.907972  0.883934  0.888565   1749.0
+macro avg      0.828446  0.869807  0.820072   1749.0
+DonJayamanne   0.970588  0.747875  0.844800    353.0
+karrtikr       0.892086  0.918519  0.905109    135.0
+karthiknadig   0.893443  0.865079  0.879032    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+             precision    recall  f1-score   support
+accuracy      0.883934  0.883934  0.883934  0.883934
+dileepyavan   1.000000  0.500000  0.666667  2.000000
+kieferrm      0.666667  1.000000  0.800000  2.000000
+kycutler      0.250000  1.000000  0.400000  2.000000
+jruales       1.000000  0.333333  0.500000  3.000000
+
+Checking Model: random_forest_best.pkl
+Test Accuracy: 99.66%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+weighted avg   0.997044  0.996569  0.996644   1749.0
+macro avg      0.989350  0.993362  0.990510   1749.0
+DonJayamanne   1.000000  1.000000  1.000000    353.0
+karrtikr       1.000000  1.000000  1.000000    135.0
+karthiknadig   1.000000  1.000000  1.000000    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+             precision    recall  f1-score   support
+accuracy      0.996569  0.996569  0.996569  0.996569
+dileepyavan   1.000000  1.000000  1.000000  2.000000
+kieferrm      1.000000  1.000000  1.000000  2.000000
+kycutler      1.000000  1.000000  1.000000  2.000000
+jruales       1.000000  1.000000  1.000000  3.000000
+
+Checking Model: linear_svm_best.pkl
+Test Accuracy: 96.23%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+weighted avg   0.965846  0.962264  0.963142   1749.0
+macro avg      0.945643  0.981643  0.958919   1749.0
+DonJayamanne   0.982036  0.929178  0.954876    353.0
+karrtikr       0.963504  0.977778  0.970588    135.0
+karthiknadig   0.960317  0.960317  0.960317    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+             precision    recall  f1-score   support
+accuracy      0.962264  0.962264  0.962264  0.962264
+dileepyavan   1.000000  1.000000  1.000000  2.000000
+kieferrm      1.000000  1.000000  1.000000  2.000000
+kycutler      0.400000  1.000000  0.571429  2.000000
+jruales       1.000000  1.000000  1.000000  3.000000
+
+Checking Model: ensemble_model.pkl
+Test Accuracy: 55.75%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+weighted avg   0.538551  0.557461  0.535860   1749.0
+macro avg      0.363239  0.318310  0.329181   1749.0
+DonJayamanne   0.644958  0.869688  0.740651    353.0
+karrtikr       0.557471  0.718519  0.627832    135.0
+karthiknadig   0.522727  0.547619  0.534884    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+             precision    recall  f1-score   support
+accuracy      0.557461  0.557461  0.557461  0.557461
+dileepyavan   0.500000  0.500000  0.500000  2.000000
+kieferrm      1.000000  1.000000  1.000000  2.000000
+kycutler      0.000000  0.000000  0.000000  2.000000
+jruales       0.000000  0.000000  0.000000  3.000000

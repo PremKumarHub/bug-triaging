@@ -47,28 +47,44 @@ print(f"Loaded {len(data)} raw documents")
 print(f"Filtered to {len(texts)} valid training samples (with text & assignee)")
 
 # =====================================================
-# 3. ENCODE LABELS (ASSIGNEES)
+# 3. GROUP RARE CLASSES & ENCODE LABELS
 # =====================================================
-# Convert names like "roblourens" into numbers like 0, 1, 2...
+print("Grouping rare classes (Threshold: < 100 bugs)...")
+from collections import Counter
+counts = Counter(assignees)
+
+# Threshold: Developers with < 100 bugs are grouped into "Other"
+threshold = 100
+new_assignees = [
+    name if counts[name] >= threshold else "Other" 
+    for name in assignees
+]
+
+print(f"Original unique classes: {len(set(assignees))}")
+print(f"New unique classes (after grouping): {len(set(new_assignees))}")
+
 print("Encoding assignee labels...")
 label_encoder = LabelEncoder()
-y = label_encoder.fit_transform(assignees)
+y = label_encoder.fit_transform(new_assignees)
 
-print(f"Found {len(label_encoder.classes_)} unique assignees")
-# print("   Classes:", label_encoder.classes_[:5], "...") # Uncomment to see names
+print(f"Found {len(label_encoder.classes_)} unique assignees (including 'Other')")
+print("   Classes:", label_encoder.classes_)
 
 # =====================================================
 # 4. TF-IDF FEATURE EXTRACTION
 # =====================================================
 print("Vectorizing text (this may take a moment)...")
 
+# Updated for High Accuracy (Trigrams)
+# ngram_range=(1, 3): Captures single words, pairs, and triplets
 vectorizer = TfidfVectorizer(
-    max_features=30000,     # Increased from 20k to 30k
-    ngram_range=(1, 3),     # Increased to capture more context
-    min_df=2,               # Slightly more inclusive
-    max_df=0.8,             # Slightly more exclusive
+    max_features=60000,      # Increased for better trigram coverage
+    stop_words='english',
+    ngram_range=(1, 3),      
+    min_df=2,
+    max_df=0.9,
     sublinear_tf=True,
-    stop_words='english'
+    strip_accents='unicode'
 )
 
 X = vectorizer.fit_transform(texts)

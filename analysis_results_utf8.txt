@@ -1,0 +1,110 @@
+﻿--- 1. Loading Labels and Class Distribution ---
+
+Total Components/Assignees: 80
+Total Samples: 8741
+
+Top 10 Assignees (Majority Classes):
+    Assignee  Count
+DonJayamanne   1766
+    karrtikr    673
+karthiknadig    628
+eleanorjboyd    617
+     amunger    436
+  roblourens    428
+ anthonykim1    362
+    rebornix    261
+      Tyriar    257
+  connor4312    255
+
+Bottom 10 Assignees (Minority Classes):
+      Assignee  Count
+       PopoDev      1
+  daviddossett      1
+      jukasper      1
+ hawkticehurst      1
+farahInTheZone      1
+      ludizhan      1
+        ntrogh      1
+        msujew      1
+  pierceboggan      1
+       shsuman      1
+
+Imbalance Ratio (Max/Min): 1766.00
+
+--- 2. Evaluating Models for Imbalance Impact ---
+
+Checking Model: logistic_regression_best.pkl
+Test Accuracy: 86.83%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+macro avg      0.814017  0.907693  0.829772   1746.0
+weighted avg   0.904243  0.868270  0.876802   1746.0
+DonJayamanne   0.980159  0.699717  0.816529    353.0
+karrtikr       0.856115  0.881481  0.868613    135.0
+karthiknadig   0.871795  0.809524  0.839506    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+            precision   recall  f1-score  support
+accuracy     0.868270  0.86827  0.868270  0.86827
+bamurtaugh   0.200000  1.00000  0.333333  1.00000
+digitarald   0.166667  1.00000  0.285714  1.00000
+debonte      0.000000  0.00000  0.000000  1.00000
+rchiodo      0.000000  0.00000  0.000000  1.00000
+
+Checking Model: random_forest_best.pkl
+Test Accuracy: 99.60%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+macro avg      0.965397  0.967720  0.966463   1746.0
+weighted avg   0.995024  0.995991  0.995450   1746.0
+DonJayamanne   0.997175  1.000000  0.998586    353.0
+karrtikr       0.992647  1.000000  0.996310    135.0
+karthiknadig   1.000000  1.000000  1.000000    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+            precision    recall  f1-score   support
+accuracy     0.995991  0.995991  0.995991  0.995991
+bamurtaugh   1.000000  1.000000  1.000000  1.000000
+digitarald   1.000000  1.000000  1.000000  1.000000
+debonte      0.000000  0.000000  0.000000  1.000000
+rchiodo      0.000000  0.000000  0.000000  1.000000
+
+Checking Model: linear_svm_best.pkl
+Test Accuracy: 96.33%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+macro avg      0.923174  0.958727  0.938065   1746.0
+weighted avg   0.965633  0.963345  0.963557   1746.0
+DonJayamanne   0.982143  0.934844  0.957910    353.0
+karrtikr       0.963235  0.970370  0.966790    135.0
+karthiknadig   0.960317  0.960317  0.960317    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+            precision    recall  f1-score   support
+accuracy     0.963345  0.963345  0.963345  0.963345
+bamurtaugh   1.000000  1.000000  1.000000  1.000000
+digitarald   1.000000  1.000000  1.000000  1.000000
+debonte      0.000000  0.000000  0.000000  1.000000
+rchiodo      0.000000  0.000000  0.000000  1.000000
+
+Checking Model: ensemble_model.pkl
+Test Accuracy: 53.55%
+
+Performance on Top 5 (Most Frequent in Test Set) Classes:
+              precision    recall  f1-score  support
+weighted avg   0.522108  0.535510  0.523116   1746.0
+macro avg      0.296543  0.273315  0.278165   1746.0
+DonJayamanne   0.653061  0.815864  0.725441    353.0
+karrtikr       0.589041  0.637037  0.612100    135.0
+karthiknadig   0.491071  0.436508  0.462185    126.0
+
+Performance on Bottom 5 (Least Frequent in Test Set) Classes:
+              precision   recall  f1-score  support
+flying-sheep    0.00000  0.00000   0.00000  0.00000
+accuracy        0.53551  0.53551   0.53551  0.53551
+debonte         0.00000  0.00000   0.00000  1.00000
+bamurtaugh      0.00000  0.00000   0.00000  1.00000
+rchiodo         0.00000  0.00000   0.00000  1.00000

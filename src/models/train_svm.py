@@ -32,13 +32,16 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Train
-# LinearSVC is significantly faster than SVC(kernel='linear') for text
+# LinearSVC is significantly faster than SVC(kernel='linear') for text  
+# =====================================================
+# THE "HONEST & OPTIMIZED" CONFIGURATION
+# =====================================================
 model = LinearSVC(
-    C=1.0, 
+    C=0.8,                  # OPTIMIZED: Less strict, allows more patterns
     class_weight="balanced", 
-    dual="auto",    # auto chooses best algorithm for n_samples vs n_features
+    dual="auto",    
     random_state=42,
-    max_iter=2000   # Increased slightly to ensure convergence
+    max_iter=3000
 )
 
 print("Training Linear SVM...")

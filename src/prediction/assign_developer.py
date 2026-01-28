@@ -4,7 +4,7 @@ from pathlib import Path
 from src.preprocessing.nlp_preprocessor import preprocess_text
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-MODEL_PATH = BASE_DIR / "saved_models/logistic_regression.pkl"
+MODEL_PATH = BASE_DIR / "saved_models/ensemble_model.pkl"
 VECTORIZER_PATH = BASE_DIR / "data/features/tfidf_vectorizer.pkl"
 ENCODER_PATH = BASE_DIR / "data/features/label_encoder.pkl"
 

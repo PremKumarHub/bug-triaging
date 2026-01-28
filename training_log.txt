@@ -18,3 +18,60 @@ Training Ensemble Model (Voting Classifier)...
 
 Ensemble Accuracy: 53.55%
 Ensemble model saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\saved_models\ensemble_model.pkl
+
+
+--- PIPELINE RUN: Tue Jan 27 16:43:19 2026 ---
+tfidf_vectorizer.py completed in 13.13s
+Found 80 unique assignees
+Vectorizing text (this may take a moment)...
+Feature Matrix shape: (8741, 30000) (Rows, Features)
+Saving artifacts to disk...
+DONE! All files saved to: C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\data\features
+tune_hyperparameters.py completed in 781.09s
+  Best Params: {'n_estimators': 200, 'max_depth': None}
+Tuning linear_svm...
+  Best Score: 0.4964
+  Best Params: {'C': 1}
+Tuning complete. Results saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\docs\reports\hyperparameter_tuning_results.json
+train_ensemble.py completed in 238.66s
+Training Ensemble Model (Voting Classifier)...
+
+Ensemble Accuracy: 53.55%
+Ensemble model saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\saved_models\ensemble_model.pkl
+
+
+--- PIPELINE RUN: Tue Jan 27 17:23:29 2026 ---
+tfidf_vectorizer.py completed in 5.69s
+ 'rzhao271' 'samvantran' 'sandy081' 'ulugbekna' 'vijayupadya' 'zhichli']
+Vectorizing text (this may take a moment)...
+Feature Matrix shape: (8741, 30000) (Rows, Features)
+Saving artifacts to disk...
+DONE! All files saved to: C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\data\features
+tune_hyperparameters.py completed in 648.57s
+  Best Params: {'n_estimators': 200, 'max_depth': None}
+Tuning linear_svm...
+  Best Score: 0.4930
+  Best Params: {'C': 1}
+Tuning complete. Results saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\docs\reports\hyperparameter_tuning_results.json
+train_ensemble.py FAILED
+
+
+--- PIPELINE RUN: Tue Jan 27 19:05:12 2026 ---
+tfidf_vectorizer.py completed in 13.18s
+ 'rzhao271' 'samvantran' 'sandy081' 'ulugbekna' 'vijayupadya' 'zhichli']
+Vectorizing text (this may take a moment)...
+Feature Matrix shape: (8999, 30000) (Rows, Features)
+Saving artifacts to disk...
+DONE! All files saved to: C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\data\features
+tune_hyperparameters.py completed in 1524.55s
+  Best Params: {'n_estimators': 200, 'max_depth': None}
+Tuning linear_svm...
+  Best Score: 0.4791
+  Best Params: {'C': 10}
+Tuning complete. Results saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\docs\reports\hyperparameter_tuning_results.json
+train_ensemble.py completed in 463.37s
+    accuracy                           0.54      1800
+   macro avg       0.34      0.27      0.29      1800
+weighted avg       0.52      0.54      0.51      1800
+
+Ensemble model saved to C:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\saved_models\ensemble_model.pkl
