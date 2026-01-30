@@ -6,7 +6,7 @@ from nltk.tokenize import word_tokenize
 
 # Avoid re-downloading
 def download_nltk_resources():
-    resources = ["stopwords", "wordnet", "omw-1.4", "punkt", "averaged_perceptron_tagger"]
+    resources = ["stopwords", "wordnet", "omw-1.4", "punkt", "punkt_tab", "averaged_perceptron_tagger", "averaged_perceptron_tagger_eng"]
     for res in resources:
         try:
             nltk.data.find(f"tokenizers/{res}") if res == "punkt" else nltk.data.find(f"corpora/{res}")
