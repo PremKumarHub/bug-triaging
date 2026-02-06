@@ -196,6 +196,7 @@ const BugHistory = () => {
                                 <th>ID</th>
                                 <th>Title</th>
                                 <th>Status</th>
+                                <th>Tags</th>
                                 <th>Confidence</th>
                                 <th>Assignee</th>
                                 <th>Source</th>
@@ -222,6 +223,22 @@ const BugHistory = () => {
                                             <span className={`status-badge status-${bug.status}`}>
                                                 {bug.status}
                                             </span>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                                {bug.tags ? bug.tags.split(',').map((tag, idx) => (
+                                                    <span key={idx} style={{
+                                                        fontSize: '0.65rem',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '4px',
+                                                        background: 'rgba(255,255,255,0.1)',
+                                                        border: '1px solid rgba(255,255,255,0.2)',
+                                                        color: '#e2e8f0'
+                                                    }}>
+                                                        {tag}
+                                                    </span>
+                                                )) : <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>-</span>}
+                                            </div>
                                         </td>
                                         <td>
                                             {bug.predictions && bug.predictions.length > 0 ? (

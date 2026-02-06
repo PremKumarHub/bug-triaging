@@ -13,8 +13,11 @@ def get_bugs(db: Session, skip: int = 0, limit: int = 100):
         joinedload(models.Bug.predictions)
     ).offset(skip).limit(limit).all()
 
-def create_bug(db: Session, bug: schemas.BugCreate):
-    db_bug = models.Bug(**bug.dict())
+def create_bug(db: Session, bug: schemas.BugCreate, tags: str = None):
+    bug_data = bug.dict()
+    if tags:
+        bug_data["tags"] = tags
+    db_bug = models.Bug(**bug_data)
     db.add(db_bug)
     db.commit()
     db.refresh(db_bug)

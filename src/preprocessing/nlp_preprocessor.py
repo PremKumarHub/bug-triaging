@@ -87,3 +87,34 @@ def preprocess_text(text: str) -> str:
             processed_tokens.append(lemma)
 
     return " ".join(processed_tokens)
+
+def generate_tags(text: str) -> str:
+    if not text:
+        return ""
+    
+    # Preprocess text to get lemmatized tokens
+    processed = preprocess_text(text)
+    tokens = set(processed.split())
+    
+    tag_keywords = {
+        "Terminal": {"terminal", "console", "shell", "bash", "command", "powershell", "zsh"},
+        "UI/UX": {"ui", "ux", "button", "icon", "color", "layout", "css", "theme", "frontend", "view", "display", "visual"},
+        "AI/Copilot": {"ai", "copilot", "chat", "agent", "gpt", "model", "prediction", "suggestion", "llm"},
+        "Performance": {"slow", "lag", "freeze", "performance", "memory", "cpu", "speed", "load", "hang"},
+        "Editor": {"editor", "diff", "text", "line", "font", "syntax", "highlight", "bracket", "indent"},
+        "Extension": {"extension", "plugin", "install", "activate", "broken", "compatibility"},
+        "Git/GitHub": {"git", "github", "repo", "commit", "push", "pull", "merge", "branch", "pr"},
+        "Backend/API": {"api", "endpoint", "server", "request", "response", "database", "sql", "json", "backend"}
+    }
+    
+    found_tags = []
+    for tag, keywords in tag_keywords.items():
+        if tokens.intersection(keywords):
+            found_tags.append(tag)
+            
+    # Also check raw text for specific phrases as fallback
+    text_lower = text.lower()
+    if "vs code" in text_lower or "vscode" in text_lower:
+        if "Editor" not in found_tags: found_tags.append("Editor")
+        
+    return ",".join(found_tags) if found_tags else "General"

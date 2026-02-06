@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from api import schemas, crud
 from database.db_connection import get_db
 from src.prediction.assign_developer import assigner
+from src.preprocessing.nlp_preprocessor import generate_tags
 from typing import List
 
 router = APIRouter()
@@ -11,8 +12,11 @@ router = APIRouter()
 async def predict_assignee(report: schemas.BugCreate, db: Session = Depends(get_db)):
     ASSIGNMENT_THRESHOLD = 0.40
     try:
-        # 1. Persist Bug
-        db_bug = crud.create_bug(db, report)
+        # 1. Generate auto-tags
+        auto_tags = generate_tags(f"{report.title} {report.body}")
+
+        # 2. Persist Bug with tags
+        db_bug = crud.create_bug(db, report, tags=auto_tags)
         
         # 2. Get Prediction
         results = assigner.predict(report.title, report.body)
@@ -27,7 +31,8 @@ async def predict_assignee(report: schemas.BugCreate, db: Session = Depends(get_
         res_payload = {
             "predictions": results,
             "threshold": ASSIGNMENT_THRESHOLD,
-            "is_auto_assigned": is_auto_assigned
+            "is_auto_assigned": is_auto_assigned,
+            "tags": auto_tags
         }
         crud.create_prediction(db, db_bug.id, res_payload, ASSIGNMENT_THRESHOLD)
         
