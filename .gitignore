@@ -19,5 +19,12 @@ data/features/
 # Jupyter
 .ipynb_checkpoints/
 
+# Node modules
+node_modules/
+frontend/node_modules/
+
 # OS files
 .DS_Store
+
+# Frontend Dist
+frontend/dist/
