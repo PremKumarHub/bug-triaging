@@ -1,3 +1,3 @@
 @echo off
-cd /d c:\Users\Public\Documents\bug-triaging\frontend
+cd /d "%~dp0frontend"
 npm run dev

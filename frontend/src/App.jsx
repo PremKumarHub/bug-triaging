@@ -20,7 +20,7 @@ function App() {
                 title,
                 body
             })
-            setResult(response.data.predictions)
+            setResult(response.data)
         } catch (err) {
             console.error("Prediction Error:", err);
             if (err.response) {
@@ -69,15 +69,24 @@ function App() {
 
                 {result && (
                     <div className="results">
-                        <h2>Prediction Results</h2>
+                        <div className="results-header">
+                            <h2>Prediction Results</h2>
+                            <div className={`status-badge ${result.is_auto_assigned ? 'auto' : 'manual'}`}>
+                                {result.is_auto_assigned ? 'Auto-Assigned' : 'Manual Review Required'}
+                            </div>
+                        </div>
+
                         <div className="predictions">
-                            {result.map((pred, index) => (
-                                <div key={index} className="prediction-item">
+                            {(result.is_auto_assigned ? [result.predictions[0]] : result.predictions).map((pred, index) => (
+                                <div key={index} className={`prediction-item ${index === 0 && result.is_auto_assigned ? 'assigned' : ''}`}>
                                     <span className="developer">{pred.developer}</span>
                                     <div className="confidence-bar">
                                         <div
                                             className="confidence-fill"
-                                            style={{ width: `${pred.confidence * 100}%` }}
+                                            style={{
+                                                width: `${pred.confidence * 100}%`,
+                                                backgroundColor: pred.confidence >= result.threshold ? '#4caf50' : '#646cff'
+                                            }}
                                         ></div>
                                     </div>
                                     <span className="confidence-text">{(pred.confidence * 100).toFixed(1)}%</span>

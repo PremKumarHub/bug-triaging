@@ -11,3 +11,5 @@ class Prediction(BaseModel):
 
 class PredictionResponse(BaseModel):
     predictions: List[Prediction]
+    threshold: float
+    is_auto_assigned: bool
