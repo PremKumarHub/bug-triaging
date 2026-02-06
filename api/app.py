@@ -17,6 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from database.db_connection import init_db
+
+init_db()
+
 # Include routes
 app.include_router(router)
 

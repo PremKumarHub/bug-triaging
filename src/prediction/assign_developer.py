@@ -24,11 +24,11 @@ class DeveloperAssigner:
         except Exception as e:
             print(f"Error loading models: {e}")
 
-    def predict(self, title: str, body: str, top_n: int = 3):
+    def predict(self, title: str, body: str, top_n: int = 5):
         if not self.model or not self.vectorizer or not self.encoder:
             return []
 
-        combined_text = f"{title} {body}"
+        combined_text = f"{title.strip()} {body.strip()}"
         clean_text = preprocess_text(combined_text)
         
         # Transform text to TF-IDF vector
@@ -43,7 +43,7 @@ class DeveloperAssigner:
         results = []
         for idx in top_indices:
             results.append({
-                "developer": self.encoder.classes_[idx],
+                "predicted_developer": self.encoder.classes_[idx],
                 "confidence": float(probs[idx])
             })
             
