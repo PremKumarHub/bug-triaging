@@ -24,15 +24,15 @@ HEADERS = {
 }
 
 
-def fetch_repo_issues(owner, repo, remaining_limit):
+def fetch_repo_issues(owner, repo, limit_per_repo=10, state="closed"):
     collected = []
     page = 1
     base_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
 
-    while len(collected) < remaining_limit:
+    while len(collected) < limit_per_repo:
         params = {
-            "state": "closed",
-            "per_page": PER_PAGE,
+            "state": state,
+            "per_page": min(PER_PAGE, limit_per_repo),
             "page": page
         }
 
@@ -51,28 +51,29 @@ def fetch_repo_issues(owner, repo, remaining_limit):
             if "pull_request" in issue:
                 continue
 
-            # Must have assignee
-            if issue["assignee"] is None:
-                continue
-
-            # Filter by closed year
-            closed_year = int(issue["closed_at"][:4])
-            if closed_year < START_YEAR:
-                continue
+            # Must have assignee for training data, but for live fetching maybe not?
+            # User said "ignores the developer or other dtail only bug tittle and description"
+            # So we don't strictly need assignee here, but let's keep it if available.
+            
+            # Filter by closed year only if we are in "closed" state
+            if state == "closed" and "closed_at" in issue and issue["closed_at"]:
+                closed_year = int(issue["closed_at"][:4])
+                if closed_year < START_YEAR:
+                    continue
 
             collected.append({
                 "repository": f"{owner}/{repo}",
                 "issue_id": issue["id"],
                 "issue_number": issue["number"],
                 "title": issue["title"],
-                "body": issue["body"],
-                "assignee": issue["assignee"]["login"],
+                "body": issue["body"] or "",
+                "assignee": issue["assignee"]["login"] if issue["assignee"] else "unassigned",
                 "state": issue["state"],
                 "created_at": issue["created_at"],
-                "closed_at": issue["closed_at"]
+                "closed_at": issue.get("closed_at")
             })
 
-            if len(collected) >= remaining_limit:
+            if len(collected) >= limit_per_repo:
                 break
 
         print(f"COLLECTED {repo}: {len(collected)} issues")
@@ -80,21 +81,37 @@ def fetch_repo_issues(owner, repo, remaining_limit):
 
     return collected
 
+def fetch_bugs_from_github(total_limit=10, state="open"):
+    """
+    Higher-level function for fetching bugs from configured repositories.
+    """
+    all_collected = []
+    
+    # Distribute the limit across repositories
+    limit_per_repo = max(1, total_limit // len(REPOSITORIES))
+    
+    for owner, repo in REPOSITORIES:
+        remaining = total_limit - len(all_collected)
+        if remaining <= 0:
+            break
+        
+        # Adjust limit for the last repo if needed
+        current_limit = min(limit_per_repo, remaining)
+        if owner == REPOSITORIES[-1][0] and repo == REPOSITORIES[-1][1]:
+            current_limit = remaining
+            
+        repo_issues = fetch_repo_issues(owner, repo, current_limit, state=state)
+        all_collected.extend(repo_issues)
+        
+    return all_collected[:total_limit]
+
 
 if __name__ == "__main__":
     if not GITHUB_TOKEN:
         raise RuntimeError("GITHUB_PAT not set")
 
-    all_issues = []
-
-    for owner, repo in REPOSITORIES:
-        remaining = MAX_TOTAL_ISSUES - len(all_issues)
-        if remaining <= 0:
-            break
-
-        print(f"\nCollecting from {owner}/{repo}")
-        repo_issues = fetch_repo_issues(owner, repo, remaining)
-        all_issues.extend(repo_issues)
+    print(f"\nCollecting up to {MAX_TOTAL_ISSUES} issues...")
+    all_issues = fetch_bugs_from_github(total_limit=MAX_TOTAL_ISSUES, state="closed")
 
     os.makedirs("data/raw", exist_ok=True)
 

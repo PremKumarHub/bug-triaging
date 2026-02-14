@@ -3,21 +3,58 @@ import axios from 'axios';
 import { Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 const BugReport = () => {
-    const [formData, setFormData] = useState({ title: '', body: '', priority: 'medium' });
+    const [formData, setFormData] = useState({ title: '', body: '', priority: 'medium', source: 'manual' });
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const [githubCount, setGithubCount] = useState(5);
+    const [githubLoading, setGithubLoading] = useState(false);
+    const [githubResult, setGithubResult] = useState(null);
+    const [localCount, setLocalCount] = useState(5);
+    const [localLoading, setLocalLoading] = useState(false);
+
+    const handleGithubFetch = async () => {
+        setGithubLoading(true);
+        setError(null);
+        setGithubResult(null);
+
+        try {
+            const response = await axios.post('/api/fetch-github', { count: githubCount });
+            setGithubResult(response.data);
+        } catch (err) {
+            setError(err.response?.data?.detail || err.message || 'Failed to fetch from GitHub');
+        } finally {
+            setGithubLoading(false);
+        }
+    };
+
+    const handleLocalImport = async () => {
+        setLocalLoading(true);
+        setError(null);
+        setGithubResult(null);
+
+        try {
+            const response = await axios.post('/api/import-local', { count: localCount });
+            setGithubResult(response.data);
+        } catch (err) {
+            setError(err.response?.data?.detail || err.message || 'Failed to import from local file');
+        } finally {
+            setLocalLoading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
         setResult(null);
+        setGithubResult(null);
 
         try {
             const response = await axios.post('/api/predict', formData);
             setResult(response.data);
-            setFormData({ title: '', body: '', priority: 'medium' });
+            setFormData({ title: '', body: '', priority: 'medium', source: 'manual' });
         } catch (err) {
             const detail = err.response?.data?.detail;
             if (Array.isArray(detail)) {
@@ -34,7 +71,102 @@ const BugReport = () => {
         <div style={{ maxWidth: '800px' }}>
             <h1 style={{ marginBottom: '2rem' }}>Report a New Bug</h1>
 
+            <div className="card" style={{ marginBottom: '2rem', border: '1px border var(--primary-light)' }}>
+                <h3 style={{ marginTop: 0, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <AlertCircle size={20} className="text-primary" />
+                    Data Import Tools
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                    Fetch real bug reports from official VS Code repositories. Existing issues will be automatically skipped.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                    <div style={{ borderRight: '1px solid var(--border)', paddingRight: '1rem' }}>
+                        <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>GitHub Fetch</h4>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                            <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
+                                <label style={{ fontSize: '0.75rem' }}>Count</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="50"
+                                    value={githubCount}
+                                    onChange={(e) => setGithubCount(parseInt(e.target.value))}
+                                    style={{ color: 'white', backgroundColor: '#0f172a' }}
+                                />
+                            </div>
+                            <button
+                                onClick={handleGithubFetch}
+                                className="btn"
+                                disabled={githubLoading || localLoading}
+                                style={{ height: '42px', whiteSpace: 'nowrap', padding: '0 1rem', fontSize: '0.875rem' }}
+                            >
+                                {githubLoading ? 'Fetching...' : 'GitHub'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>Local Import</h4>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                            <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
+                                <label style={{ fontSize: '0.75rem' }}>Count</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    value={localCount}
+                                    onChange={(e) => setLocalCount(parseInt(e.target.value))}
+                                    style={{ color: 'white', backgroundColor: '#0f172a' }}
+                                />
+                            </div>
+                            <button
+                                onClick={handleLocalImport}
+                                className="btn btn-secondary"
+                                disabled={githubLoading || localLoading}
+                                style={{ height: '42px', whiteSpace: 'nowrap', padding: '0 1rem', fontSize: '0.875rem' }}
+                            >
+                                {localLoading ? 'Importing...' : 'Local File'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {githubResult && (
+                    <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#0f172a', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', textAlign: 'center' }}>
+                            <div>
+                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--success)' }}>{githubResult.imported_count || githubResult.total_sampled}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{githubResult.imported_count !== undefined ? 'Imported' : 'Sampled'}</div>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--warning)' }}>{githubResult.skipped_count}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Duplicates</div>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--danger)' }}>{githubResult.error_count}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Errors</div>
+                            </div>
+                        </div>
+
+                        {githubResult.imported_count > 0 && (
+                            <div style={{ marginTop: '1rem', borderTop: '1px solid #334155', paddingTop: '1rem' }}>
+                                <div style={{ fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>Recently Imported:</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {githubResult.imported.slice(0, 3).map((bug, idx) => (
+                                        <div key={idx} style={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', background: '#1e293b', padding: '0.5rem', borderRadius: '0.25rem' }}>
+                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>{bug.title}</span>
+                                            <span style={{ color: 'var(--success)', flexShrink: 0 }}>ID: {bug.bug_id}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
             <div className="card">
+                <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Manual Entry</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Bug Title</label>

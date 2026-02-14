@@ -5,6 +5,9 @@ import json
 def get_bug(db: Session, bug_id: int):
     return db.query(models.Bug).filter(models.Bug.id == bug_id).first()
 
+def get_bug_by_title(db: Session, title: str):
+    return db.query(models.Bug).filter(models.Bug.title == title).first()
+
 from sqlalchemy.orm import Session, joinedload
 
 def get_bugs(db: Session, skip: int = 0, limit: int = 100):

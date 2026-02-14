@@ -12,6 +12,8 @@ class BugBase(BaseModel):
     body: str
     priority: Optional[str] = "medium"
     tags: Optional[str] = None
+    source: Optional[str] = "manual"
+
 
 class BugCreate(BugBase):
     pass
@@ -56,3 +58,12 @@ class AssignmentUpdate(BaseModel):
     developer_id: Optional[int] = None
     developer_name: str
     notes: Optional[str] = None
+
+class GithubFetchRequest(BaseModel):
+    repo_owner: Optional[str] = "microsoft"
+    repo_name: Optional[str] = "vscode"
+    count: int = Field(default=5, ge=1, le=50)
+
+class LocalImportRequest(BaseModel):
+    count: int = Field(default=5, ge=1, le=100)
+
