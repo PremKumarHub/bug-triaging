@@ -10,10 +10,11 @@ import os
 import random
 
 from src.data_collection.github_collector import fetch_bugs_from_github
+from src.utils.developer_matcher import DeveloperMatcher
 
 router = APIRouter()
 
-async def process_bug_report(report: schemas.BugCreate, db: Session):
+async def process_bug_report(report: schemas.BugCreate, db: Session, override_developer: str = None):
     """Helper to process a bug report: tag, save, predict, assign."""
     ASSIGNMENT_THRESHOLD = 0.40
     
@@ -29,23 +30,32 @@ async def process_bug_report(report: schemas.BugCreate, db: Session):
         return None, "Model not loaded or prediction failed"
     
     # 4. Decision Logic
-    top_prediction = results[0]
-    is_auto_assigned = top_prediction["confidence"] >= ASSIGNMENT_THRESHOLD
+    if override_developer:
+        # If we matched an existing developer (e.g. from GitHub), force auto-assignment
+        is_auto_assigned = True
+        top_developer = override_developer
+        confidence = 1.0 # Manual match is highest confidence
+    else:
+        top_prediction = results[0]
+        is_auto_assigned = top_prediction["confidence"] >= ASSIGNMENT_THRESHOLD
+        top_developer = top_prediction["predicted_developer"]
+        confidence = top_prediction["confidence"]
     
     # 5. Save Prediction Result
     res_payload = {
         "predictions": results,
         "threshold": ASSIGNMENT_THRESHOLD,
         "is_auto_assigned": is_auto_assigned,
-        "tags": auto_tags
+        "tags": auto_tags,
+        "matched_from_source": override_developer is not None
     }
     crud.create_prediction(db, db_bug.id, res_payload, ASSIGNMENT_THRESHOLD)
     
     # 6. Handle Assignment
     if is_auto_assigned:
-        crud.create_assignment(db, db_bug.id, top_prediction["predicted_developer"], "auto")
+        crud.create_assignment(db, db_bug.id, top_developer, "auto")
     else:
-        crud.create_assignment(db, db_bug.id, top_prediction["predicted_developer"], "manual")
+        crud.create_assignment(db, db_bug.id, top_developer, "manual")
         
     return {
         "bug_id": db_bug.id,
@@ -70,8 +80,19 @@ async def predict_assignee(report: schemas.BugCreate, db: Session = Depends(get_
 @router.post("/fetch-github")
 async def fetch_github_issues(req: schemas.GithubFetchRequest, db: Session = Depends(get_db)):
     try:
+        # 0. Initialize Matcher
+        developers = crud.get_users(db, role="developer")
+        dev_list = []
+        for d in developers:
+            dev_list.append({
+                "id": d.id,
+                "username": d.username,
+                "full_name": d.full_name,
+                "email": f"{d.username}@internal.com" # Placeholder for email check
+            })
+        matcher = DeveloperMatcher(dev_list)
+
         # 1. Fetch from GitHub
-        # We use the total count requested
         raw_issues = fetch_bugs_from_github(total_limit=req.count, state="open")
         
         imported = []
@@ -85,7 +106,14 @@ async def fetch_github_issues(req: schemas.GithubFetchRequest, db: Session = Dep
                 skipped.append(issue["title"])
                 continue
             
-            # 3. Process new bug
+            # 3. Try to match GitHub assignee to local developer
+            override_dev = None
+            if issue.get("assignee") and issue["assignee"] != "unassigned":
+                match_res = matcher.match(issue["assignee"])
+                if match_res["developer_found"]:
+                    override_dev = match_res["matched_developer_name"]
+            
+            # 4. Process new bug
             report = schemas.BugCreate(
                 title=issue["title"],
                 body=issue["body"],
@@ -93,7 +121,7 @@ async def fetch_github_issues(req: schemas.GithubFetchRequest, db: Session = Dep
                 source="github"
             )
             
-            result, error = await process_bug_report(report, db)
+            result, error = await process_bug_report(report, db, override_developer=override_dev)
             if error:
                 errors.append({"title": issue["title"], "error": error})
             else:
@@ -117,9 +145,16 @@ async def fetch_github_issues(req: schemas.GithubFetchRequest, db: Session = Dep
 @router.post("/import-local")
 async def import_local_bugs(req: schemas.LocalImportRequest, db: Session = Depends(get_db)):
     try:
+        # 0. Initialize Matcher
+        developers = crud.get_users(db, role="developer")
+        dev_list = []
+        for d in developers:
+            dev_list.append({
+                "id": d.id, "username": d.username, "full_name": d.full_name, "email": f"{d.username}@internal.com"
+            })
+        matcher = DeveloperMatcher(dev_list)
+
         # Resolve path relative to project root
-        # The file is at c:\Users\Prem\Desktop\final yer project document\Bug Triaging\Bug-Triaging-ML-System\data\processed\bug_reports_cleaned.json
-        # routes.py is at ...\api\routes.py
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         data_path = os.path.join(base_dir, "data", "processed", "bug_reports_cleaned.json")
         
@@ -144,15 +179,22 @@ async def import_local_bugs(req: schemas.LocalImportRequest, db: Session = Depen
                 skipped.append(bug["title"])
                 continue
             
-            # 2. Process
+            # 2. Match Assignee
+            override_dev = None
+            if bug.get("assignee"):
+                match_res = matcher.match(bug["assignee"])
+                if match_res["developer_found"]:
+                    override_dev = match_res["matched_developer_name"]
+
+            # 3. Process
             report = schemas.BugCreate(
                 title=bug["title"],
-                body=bug["body"],
+                body=bug.get("body", ""),
                 priority="medium",
                 source="local"
             )
             
-            result, error = await process_bug_report(report, db)
+            result, error = await process_bug_report(report, db, override_developer=override_dev)
             if error:
                 errors.append({"title": bug["title"], "error": error})
             else:
