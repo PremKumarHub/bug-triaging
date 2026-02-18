@@ -61,15 +61,15 @@ def create_assignment(db: Session, bug_id: int, developer_name: str, assignment_
 
 def get_dashboard_stats(db: Session):
     total = db.query(models.Bug).count()
-    auto = db.query(models.BugAssignment).filter(models.BugAssignment.assignment_type == 'auto').count()
-    manual = db.query(models.BugAssignment).filter(models.BugAssignment.assignment_type == 'manual').count()
+    auto = db.query(models.Bug).filter(models.Bug.status == 'assigned').count()
+    manual = db.query(models.Bug).filter(models.Bug.status == 'manual-review').count()
     pending = db.query(models.Bug).filter(models.Bug.status == 'open').count()
     
-    # Bugs per developer
-    # Note: Simplified for now
+    # Bugs per developer - only for currently existing bugs
     dev_counts = {}
-    assignments = db.query(models.BugAssignment).all()
-    for a in assignments:
+    # Join with assignments to get the latest developer name for each assigned bug
+    active_assignments = db.query(models.BugAssignment).join(models.Bug).all()
+    for a in active_assignments:
         dev = a.developer_name
         dev_counts[dev] = dev_counts.get(dev, 0) + 1
         
@@ -91,9 +91,22 @@ def get_prediction_by_bug(db: Session, bug_id: int):
     return db.query(models.ModelPrediction).filter(models.ModelPrediction.bug_id == bug_id).first()
 
 def delete_bug(db: Session, bug_id: int):
+    # Manually delete related records to be safe
+    db.query(models.BugAssignment).filter(models.BugAssignment.bug_id == bug_id).delete(synchronize_session=False)
+    db.query(models.ModelPrediction).filter(models.ModelPrediction.bug_id == bug_id).delete(synchronize_session=False)
+    
     db_bug = db.query(models.Bug).filter(models.Bug.id == bug_id).first()
     if db_bug:
         db.delete(db_bug)
         db.commit()
         return True
     return False
+
+def delete_bugs(db: Session, bug_ids: list):
+    # Manually delete related records first because bulk delete doesn't trigger cascade
+    db.query(models.BugAssignment).filter(models.BugAssignment.bug_id.in_(bug_ids)).delete(synchronize_session=False)
+    db.query(models.ModelPrediction).filter(models.ModelPrediction.bug_id.in_(bug_ids)).delete(synchronize_session=False)
+    
+    count = db.query(models.Bug).filter(models.Bug.id.in_(bug_ids)).delete(synchronize_session=False)
+    db.commit()
+    return count

@@ -3,6 +3,17 @@ import os
 import json
 
 # ---------------- CONFIG ----------------
+# Try to load from .env manually if python-dotenv is not available
+def load_env_manually():
+    env_path = os.path.join(os.getcwd(), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r') as f:
+            for line in f:
+                if '=' in line and not line.startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    os.environ[key] = value
+
+load_env_manually()
 GITHUB_TOKEN = os.getenv("GITHUB_PAT")
 
 REPOSITORIES = [
@@ -18,16 +29,19 @@ START_YEAR = 2022
 MAX_TOTAL_ISSUES = 9000   # overall limit
 # ----------------------------------------
 
-HEADERS = {
-    "Authorization": f"token {GITHUB_TOKEN}",
-    "Accept": "application/vnd.github+json"
-}
-
+def get_headers():
+    headers = {
+        "Accept": "application/vnd.github+json"
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+    return headers
 
 def fetch_repo_issues(owner, repo, limit_per_repo=10, state="closed"):
     collected = []
     page = 1
     base_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+    headers = get_headers()
 
     while len(collected) < limit_per_repo:
         params = {
@@ -36,10 +50,17 @@ def fetch_repo_issues(owner, repo, limit_per_repo=10, state="closed"):
             "page": page
         }
 
-        response = requests.get(base_url, headers=HEADERS, params=params)
-
-        if response.status_code != 200:
-            print(f"API error in {repo}: {response.status_code}")
+        try:
+            response = requests.get(base_url, headers=headers, params=params)
+            
+            if response.status_code == 403:
+                print(f"Rate limit exceeded or forbidden for {owner}/{repo}. Check GITHUB_PAT.")
+                break
+            elif response.status_code != 200:
+                print(f"API error in {owner}/{repo}: {response.status_code} - {response.text}")
+                break
+        except Exception as e:
+            print(f"Request failed for {owner}/{repo}: {str(e)}")
             break
 
         issues = response.json()

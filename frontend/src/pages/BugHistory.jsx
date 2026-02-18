@@ -11,6 +11,7 @@ const BugHistory = () => {
     const [bugs, setBugs] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const [selectedIds, setSelectedIds] = useState([]);
 
     // Assignment Modal State
     const [selectedBug, setSelectedBug] = useState(null);
@@ -87,6 +88,31 @@ const BugHistory = () => {
         } catch (err) {
             alert("Failed to delete bug: " + err.message);
         }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} selected bugs?`)) return;
+        try {
+            await axios.post('/api/bugs/bulk-delete', { bug_ids: selectedIds });
+            setSelectedIds([]);
+            fetchBugs();
+        } catch (err) {
+            alert("Failed to delete bugs: " + err.message);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length === filteredBugs.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filteredBugs.map(b => b.id));
+        }
+    };
+
+    const toggleSelect = (id) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
     };
 
     const filteredBugs = bugs.filter(bug => {
@@ -176,7 +202,7 @@ const BugHistory = () => {
             </div>
 
             <div className="card" style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
                     <div style={{ position: 'relative', flex: 1 }}>
                         <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                         <input
@@ -187,12 +213,29 @@ const BugHistory = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    {selectedIds.length > 0 && (
+                        <button
+                            className="btn btn-danger"
+                            onClick={handleBulkDelete}
+                            style={{ background: 'var(--danger)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+                        >
+                            <Trash2 size={18} /> Delete ({selectedIds.length})
+                        </button>
+                    )}
                 </div>
 
                 <div className="table-container">
                     <table>
                         <thead>
                             <tr>
+                                <th style={{ width: '40px' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={filteredBugs.length > 0 && selectedIds.length === filteredBugs.length}
+                                        onChange={toggleSelectAll}
+                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                    />
+                                </th>
                                 <th>ID</th>
                                 <th>Title</th>
                                 <th>Status</th>
@@ -211,7 +254,15 @@ const BugHistory = () => {
                                     : null;
 
                                 return (
-                                    <tr key={bug.id}>
+                                    <tr key={bug.id} className={selectedIds.includes(bug.id) ? 'selected-row' : ''}>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIds.includes(bug.id)}
+                                                onChange={() => toggleSelect(bug.id)}
+                                                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                            />
+                                        </td>
                                         <td>#{bug.id}</td>
                                         <td>
                                             <div style={{ fontWeight: 600 }}>{bug.title}</div>

@@ -91,7 +91,6 @@ const BugReport = () => {
                                     max="50"
                                     value={githubCount}
                                     onChange={(e) => setGithubCount(parseInt(e.target.value))}
-                                    style={{ color: 'white', backgroundColor: '#0f172a' }}
                                 />
                             </div>
                             <button
@@ -116,7 +115,6 @@ const BugReport = () => {
                                     max="100"
                                     value={localCount}
                                     onChange={(e) => setLocalCount(parseInt(e.target.value))}
-                                    style={{ color: 'white', backgroundColor: '#0f172a' }}
                                 />
                             </div>
                             <button
@@ -135,12 +133,12 @@ const BugReport = () => {
                     <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#0f172a', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', textAlign: 'center' }}>
                             <div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--success)' }}>{githubResult.imported_count || githubResult.total_sampled}</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{githubResult.imported_count !== undefined ? 'Imported' : 'Sampled'}</div>
+                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--success)' }}>{githubResult.imported_count}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Imported</div>
                             </div>
                             <div>
                                 <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--warning)' }}>{githubResult.skipped_count}</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Duplicates</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Skipped</div>
                             </div>
                             <div>
                                 <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--danger)' }}>{githubResult.error_count}</div>

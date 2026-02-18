@@ -210,6 +210,11 @@ async def delete_bug(bug_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Bug not found")
     return {"message": "Bug deleted successfully"}
 
+@router.post("/bugs/bulk-delete")
+async def bulk_delete_bugs(req: schemas.BulkDeleteRequest, db: Session = Depends(get_db)):
+    count = crud.delete_bugs(db, req.bug_ids)
+    return {"message": f"Successfully deleted {count} bugs"}
+
 @router.get("/health")
 async def health_check():
     if assigner.model and assigner.vectorizer and assigner.encoder:

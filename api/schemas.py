@@ -67,3 +67,6 @@ class GithubFetchRequest(BaseModel):
 class LocalImportRequest(BaseModel):
     count: int = Field(default=5, ge=1, le=100)
 
+class BulkDeleteRequest(BaseModel):
+    bug_ids: List[int]
+
